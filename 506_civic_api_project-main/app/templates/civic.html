@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Civic Info{% endblock %}
+{% block content %}
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+</style>
+</head>
+<body>
+
+<h2>Location: {{address}}</h2>
+
+<h3>Upcoming Elections:</h3> 
+
+{% if election_data %}
+<p>{{election_data["election"]["name"]}} on {{election_data["election"]["electionDay"]}}</p>
+
+<button type="button" class="collapsible">Contests</button>
+<div class="content">
+{% for contest in election_data["contests"] %}
+<p>Type: {{contest["type"]}} <br/>
+Office: {{contest["office"]}} <br/>
+Candidates: <br/>
+{% for candidate in contest["candidates"] %}
+&emsp;Name: {{candidate["name"]}}<br/>
+&emsp;Party: {{candidate["party"]}}<br/>
+{% endfor %}
+</p>
+{% endfor %}
+</div>
+
+<button type="button" class="collapsible">Polling Locations</button>
+<div class="content">
+{% for polling_location in election_data["pollingLocations"][0:5] %}
+<p>Location: {{polling_location["address"]["locationName"]}} <br/>
+Address: <a href={{polling_location["directions"]}}> {{polling_location["address"]["line1"]}} {{polling_location["address"]["line2"]}} {{polling_location["address"]["line3"]}}, {{polling_location["address"]["city"]}} </a><br/>
+Polling Dates: {{polling_location["startDate"]}} - {{polling_location["endDate"]}} <br/>
+Polling Hours: {{polling_location["pollingHours"]}}</p>
+{% endfor %}
+</div>
+
+{% if election_data["earlyVoteSites"] %}
+<button type="button" class="collapsible">Early Vote Sites</button>
+<div class="content">
+{% for early_site in election_data["earlyVoteSites"][0:5] %}
+<p>Location: {{early_site["address"]["locationName"]}} <br/>
+Address: <a href={{early_site["directions"]}}> {{early_site["address"]["line1"]}} {{early_site["address"]["line2"]}} {{early_site["address"]["line3"]}}, {{early_site["address"]["city"]}} </a><br/>
+Polling Dates: {{early_site["startDate"]}} - {{early_site["endDate"]}} <br/>
+Polling Hours: {{early_site["pollingHours"]}}</p>
+{% endfor %}
+</div>
+{% endif %}
+
+{% if election_data["dropOffLocations"] %}
+<button type="button" class="collapsible">Drop Off Locations</button>
+<div class="content">
+{% for drop_off in election_data["dropOffLocations"][0:5] %}
+<p>Location: {{drop_off["address"]["locationName"]}} <br/>
+Address: <a href={{drop_off["directions"]}}> {{drop_off["address"]["line1"]}} {{drop_off["address"]["line2"]}} {{drop_off["address"]["line3"]}}, {{drop_off["address"]["city"]}} <a/><br/>
+Polling Dates: {{drop_off["startDate"]}} - {{drop_off["endDate"]}} <br/>
+Polling Hours: {{drop_off["pollingHours"]}}</p>
+{% endfor %}
+</div> 
+{% endif %}
+
+<button type="button" class="collapsible">Additional Resources</button>
+<div class="content">
+<p> 
+<a href={{election_data["state"][0]["electionAdministrationBody"]["electionInfoUrl"]}}> Election Info</a><br/> 
+<a href={{election_data["state"][0]["electionAdministrationBody"]["electionRegistrationUrl"]}}> Election Registration Info</a><br/> 
+<a href={{election_data["state"][0]["electionAdministrationBody"]["electionRegistrationConfirmationUrl"]}}> Election Registration Confirmation</a><br/> 
+<a href={{election_data["state"][0]["electionAdministrationBody"]["absenteeVotingInfoUrl"]}}> Absentee Voting Info</a><br/> 
+<a href={{election_data["state"][0]["electionAdministrationBody"]["ballotInfoUrl"]}}> Ballot Info</a><br/> 
+<a href={{election_data["state"][0]["electionAdministrationBody"]["electionRulesUrl"]}}> Election Rules</a><br/> 
+</p>
+</div>
+{% else %}
+No upcoming elections.
+{% endif %}
+
+
+<h3>Representatives:</h3>
+{% for office in offices %}
+{% for official in office["officialIndices"] %}
+<button type="button" class="collapsible">{{office["name"]}}</button>
+<div class="content">
+<p>
+{% if officials[official]["photoUrl"] %}
+<img src={{officials[official]["photoUrl"]}} alt={{officials[official]["name"]}}><br/>
+{% endif %}
+Name: {{officials[official]["name"]}}<br/>
+Party: {{officials[official]["party"]}}<br/>
+Phone: {% if officials[official]["phones"] %}
+{{officials[official]["phones"][0]}}<br/>
+{% else %}
+None found.<br/>
+{% endif %}
+Email: {% if officials[official]["emails"] %}
+{{officials[official]["emails"][0]}}<br/>
+{% else %}
+None found.<br/>
+{% endif %}
+Website: {% if officials[official]["urls"] %}
+<a href="{{officials[official]['urls'][0]}}" >  {{officials[official]["urls"][0]}}</a><br/>
+{% endif %}
+Other Contacts:<br/> 
+{% if officials[official]["channels"] %}
+{% for channel in officials[official]["channels"] %}
+&emsp;{{channel["type"]}}: {{channel["id"]}}<br/>
+{% endfor %}
+{% else %}
+&emsp;None found.<br/>
+{% endif %}
+</p>
+</div>
+{% endfor %}
+{% endfor %}
+
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+</script>
+
+</body>
+</html>
+{% endblock %}

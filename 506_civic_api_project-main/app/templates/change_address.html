@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Change Address{% endblock %}
+{% block content %}
+<div class="container w-50">
+<form action="" method="post">
+  {{ form.csrf_token }}
+  <div class="mb-3">
+    <fieldset class="form-field">
+     {{form.address.label(class="form-control-label")}}
+     {{form.address(class="form-control form-control-lg")}}
+     {% if form.address.errors %}
+		<ul class="errors">
+			{% for error in form.address.errors %}
+				`<li>{{ error }}</li>
+			{% endfor %}
+		</ul>
+     {% endif %}
+  </fieldset>
+  </div>
+  {{form.submit}}
+</form>
+</div>
+{% endblock %}
